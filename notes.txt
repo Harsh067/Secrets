@@ -1,0 +1,52 @@
+Hashing and salting using bcrypt
+
+ const bcrypt = require("bcrypt");
+ const saltRounds = 10;
+
+ app.post("/register", function(req,res) {
+   bcrypt.hash(req.body.password, saltRounds,function(err,hash) {
+     const newUser = new User({
+       email: req.body.username,
+       password: hash
+      // password: md5(req.body.password)
+
+     });
+
+   newUser.save(function(err) {
+     if(err) {
+       console.log(err);
+     } else {
+       res.render("secrets");
+     }
+   }) ;
+   });
+ });
+//////////////////////////////////////////////////////////////////////////////
+ app.post("/login", function(req,res) {
+   const uName = req.body.username;
+   const uPass = req.body.password;
+   User.findOne({email: uName}, function(err, foundUser) {
+     if(err) {
+       console.log(err);
+     } else {
+       if(foundUser) {
+         bcrypt.compare(uPass, foundUser.password, function(err,resq) {
+           if(resq === true) {
+                 res.render("secrets");
+           }
+         });
+         }
+       }
+   });
+ });
+ /////////////////////////////////////////////////////////////////////////////
+ Hashing only using md5
+
+ const md5 = require("md5");
+ const encrypt = require("mongoose-encryption");
+
+userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"]});
+
+In login and register post route
+password: md5(req.body.password) and use this in if conditions to extract data
+of choosing by checking for user authentication
